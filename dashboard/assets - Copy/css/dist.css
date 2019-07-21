@@ -6,16 +6,11 @@ body {
 }
 
 .row {
-    margin-top: 10px;
+    margin-top: 40px;
     padding: 0 10px;
 }
 
 .card>.card-body {
-    background-color: #ffffff;
-    color: black;
-}
-
-.card>.card-subtitle {
     background-color: #ffffff;
     color: black;
 }
