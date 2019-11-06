@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 class database
 {
     private $link = null;
@@ -77,7 +79,7 @@ class database
 
     private function __where($info, $type = 'AND')
     {
-        $link = &self::connection();
+        $link = self::connection();
         $where = $this->where;
         foreach ($info as $row => $value) {
             if (empty($where)) {
@@ -88,33 +90,7 @@ class database
         }
         $this->where = $where;
     }
-    private function __wherelike($info, $type = 'AND')
-    {
-        $link = &self::connection();
-        $where = $this->where;
-        foreach ($info as $row => $value) {
-            if (empty($where)) {
-                $where = sprintf("WHERE `%s`LIKE'%s'", $row, mysqli_real_escape_string($link, $value));
-            } else {
-                $where .= sprintf(" %s `%s`LIKE'%s'", $type, $row, mysqli_real_escape_string($link, $value));
-            }
-        }
-        $this->where = $where;
-    }
-
-    private function __wherebetween($info, $type = 'AND')
-    {
-        $link = &self::connection();
-        $where = $this->where;
-        foreach ($info as $row => $value) {
-            if (empty($where)) {
-                $where = sprintf("WHERE `%s` BETWEEN '%s'", $row, mysqli_real_escape_string($link, $value));
-            } else {
-                $where .= sprintf(" AND '%s'", mysqli_real_escape_string($link, $value));
-            }
-        }
-        $this->where = $where;
-    }
+    
     
 
 
@@ -177,6 +153,34 @@ class database
         }
         return $this;
     }
+    private function __wherelike($info, $type = 'AND')
+    {
+        $link = self::connection();
+        $where = $this->where;
+        foreach ($info as $row => $value) {
+            if (empty($where)) {
+                $where = sprintf("WHERE `%s`LIKE'%s'", $row, mysqli_real_escape_string($link, $value));
+            } else {
+                $where .= sprintf(" %s `%s`LIKE'%s'", $type, $row, mysqli_real_escape_string($link, $value));
+            }
+        }
+        $this->where = $where;
+    }
+
+    private function __wherebetween($info, $type = 'AND')
+    {
+        $link = self::connection();
+        $where = $this->where;
+        foreach ($info as $row => $value) {
+            if (empty($where)) {
+                $where = sprintf("WHERE `%s` BETWEEN '%s'", $row, mysqli_real_escape_string($link, $value));
+            } else {
+                $where .= sprintf(" AND '%s'", mysqli_real_escape_string($link, $value));
+            }
+        }
+        $this->where = $where;
+    }
+
     public function wherebetween($field, $equal = null)
     {
         if (is_array($field)) {
@@ -185,6 +189,12 @@ class database
             self::__wherebetween(array($field => $equal));
         }
         return $this;
+    }
+
+    public function wherebetweentem($Start,$End)
+    {
+        $link = self::connection();
+        //select * from mytable where date between '10-11-2010' and '17-11-2010'
     }
 
 
@@ -270,7 +280,7 @@ class database
 
     public function query($qry, $return = false)
     {
-        $link = &self::connection();
+        $link = self::connection();
         self::set('last_query', $qry);
         $result = mysqli_query($link, $qry);
         if ($result instanceof mysqli_result) {
@@ -295,7 +305,7 @@ class database
 
     public function get($table, $select = '*')
     {
-        $link = &self::connection();
+        $link = $this->connection();
         if (is_array($select)) {
             $cols = '';
             foreach ($select as $col) {
@@ -331,7 +341,7 @@ class database
 
     public function insert($table, $data)
     {
-        $link = &self::connection();
+        $link = self::connection();
         $fields = '';
         $values = '';
         foreach ($data as $col => $value) {
@@ -355,7 +365,7 @@ class database
         if (empty($this->where)) {
             throw new Exception("Where is not set. Can't update whole table.");
         } else {
-            $link = &self::connection();
+            $link = self::connection();
             $update = '';
             foreach ($info as $col => $value) {
                 $update .= sprintf("`%s`='%s', ", $col, mysqli_real_escape_string($link, $value));
@@ -376,7 +386,7 @@ class database
         if (empty($this->where)) {
             throw new Exception("Where is not set. Can't delete whole table.");
         } else {
-            $link = &self::connection();
+            $link = self::connection();
             $sql = sprintf("DELETE FROM %s%s", $table, self::extra());
             self::set('last_query', $sql);
             if (!mysqli_query($link, $sql)) {
