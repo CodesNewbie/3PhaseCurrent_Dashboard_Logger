@@ -1,5 +1,7 @@
 <?php
+date_default_timezone_set("Asia/Bangkok");
 include "./inc/conn.php";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
