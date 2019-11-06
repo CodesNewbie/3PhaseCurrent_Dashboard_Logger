@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
 date_default_timezone_set('Asia/Bangkok');
 include_once('./inc/conn.php');
@@ -137,11 +141,13 @@ class getdata extends database
         $dateSEnd = $result_explode[1];
         $Start = str_replace('/', '-', $dateStart);
         $End = str_replace('/', '-', $dateSEnd);
+       
         try {
-            $res = $this->conn->wherebetween(array('time' => $Start, 'times' => $End))->order_by('time', 'DESC')->get('logger', array('data', 'time'));
+            $res = $this->conn->wherebetween(array('time' => trim($Start), 'times' => trim($End)))->order_by('time', 'DESC')->get('logger', array('data', 'time'));
+
             $array = array();
 
-            if (sizeof($res) > 1) {
+            if (is_array($res) && sizeof($res) > 1) {
                 foreach ($res as $val) {
                     $jsonResult = json_decode($val['data'], true);
                     $resau['time'] = $val['time'];
@@ -167,7 +173,10 @@ class getdata extends database
         } catch (Exception $e) {
             echo 'Caught exception: ', $e->getMessage();
         }
+        
         echo json_encode(array_reverse($array), JSON_PRETTY_PRINT);
+
+
     }
 }
 
@@ -210,7 +219,7 @@ switch ($action) {
     case "adddata":
         if (isset($_POST["device"])) {
             $deviceid = $_POST["device"];
-        }else{
+        } else {
             $deviceid = "null";
         }
         if (isset($_POST["data"])) {
@@ -218,11 +227,11 @@ switch ($action) {
         } else {
             $data = "{\"i1\":0,\"i2\":0,\"i3\":0}";
         }
-            $y = new adddata();
-            $y->deviceid = $deviceid;
-            $y->data = $data;
-            $y->add();
-      
+        $y = new adddata();
+        $y->deviceid = $deviceid;
+        $y->data = $data;
+        $y->add();
+
         break;
     case "add2":
         if (isset($_GET["d"]) && isset($_GET["d2"])) {
